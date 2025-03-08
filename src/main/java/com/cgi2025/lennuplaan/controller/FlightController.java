@@ -47,4 +47,10 @@ public class FlightController {
                 flightService.deleteFlight(id);
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        @GetMapping("/flights")
+        public List<Flight> getFlights(@RequestParam String departure, @RequestParam String date) {
+                return flightService.getFlights(departure, date);
+        }
+
 }

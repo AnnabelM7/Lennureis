@@ -1,10 +1,12 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {createRouter, createWebHistory} from "vue-router";
 import Home from "../views/Home.vue";
 import Contact from "../views/Contact.vue";
+import FlightDetails from '../views/FlightDetails.vue';
 
 const routes = [
-    { path: "/", component: Home, meta: { title: "Avaleht" } },
-    { path: "/contact", component: Contact, meta: { title: "Kontakt" } },
+    {path: "/", component: Home, meta: {title: "Avaleht"}},
+    {path: "/contact", component: Contact, meta: {title: "Kontakt"}},
+    {path: '/',name: 'Home',component: Home},{path: '/flight/:id',name: 'FlightDetails', component: FlightDetails,props: true}
 ];
 
 const router = createRouter({

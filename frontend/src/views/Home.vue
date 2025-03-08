@@ -2,109 +2,136 @@
   <div class="home">
     <h1>Tere tulemast CloudReach Airlines lehele!</h1>
 
-    <p>Broneeri oma järgmine lennureis mugavalt:</p>
+    <p>Otsi oma järgmine lennureis mugavalt:</p>
 
     <!-- Lennuotsing -->
-    <form @submit.prevent="getFlights">
-      <label for="departure">Lähtekoht:</label>
-      <select v-model="departure" id="departure">
+    <form @submit.prevent="getFlights" class="flight-form">
+      <label for="airport">Lähtekoht (lennujaam):</label>
+      <select v-model="airport" id="airport">
         <option value="TLL">Tallinn (TLL)</option>
         <option value="RIX">Riia (RIX)</option>
         <option value="HEL">Helsingi (HEL)</option>
+        <option value="FRA">Frankfurt (FRA)</option>
+        <option value="AMS">Amsterdam (AMS)</option>
+        <option value="BER">Berliin (BER)</option>
+        <option value="CPH">Kopenhaagen (CPH)</option>
       </select>
 
-      <label for="destination">Sihtkoht:</label>
-      <select v-model="destination" id="destination">
-        <option value="LAX">Los Angeles (LAX)</option>
-        <option value="JFK">New York (JFK)</option>
-        <option value="DXB">Dubai (DXB)</option>
+      <label for="type">Lennu tüüp:</label>
+      <select v-model="type" id="type">
+        <option value="departure">Väljumine</option>
+        <option value="arrival">Saabumine</option>
       </select>
 
       <label for="date">Kuupäev:</label>
-      <input type="date" id="date" v-model="date" :min="minDate" required />
-
-      <label for="adults">Täiskasvanud:</label>
-      <input type="number" id="adults" v-model="adults" min="1" required />
-
-      <label for="children">Lapsed:</label>
-      <input type="number" id="children" v-model="children" min="0" />
-
-      <label for="babies">Beebid:</label>
-      <input type="number" id="babies" v-model="babies" min="0" />
-
-      <label for="class">Klass:</label>
-      <select id="class" v-model="flightClass">
-        <option value="Economy">Turistiklass</option>
-        <option value="Business">Äriklass</option>
-        <option value="First">1. klass</option>
-      </select>
-
-      <label for="currency">Valuuta:</label>
-      <select id="currency" v-model="currency">
-        <option value="USD">USD</option>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
-      </select>
+      <input type="date" id="date" v-model="date" :min="minDate" required/>
 
       <button type="submit">Otsi lende</button>
     </form>
 
     <!-- Lendude kuvamine -->
-    <div v-if="flights && flights.length > 0">
-      <h2>Leitud lennud:</h2>
-      <ul>
-        <li v-for="flight in flights" :key="flight.id">
-          <strong>{{ flight.name }}</strong> - {{ flight.price }} {{ currency }}
-          ({{ flight.departureTime }} - {{ flight.arrivalTime }})
-        </li>
-      </ul>
-    </div>
+    <h2 v-if="flights.length">Leitud lennud:</h2>
+    <table v-if="flights.length" class="flight-table">
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>Lennufirma</th>
+        <th>Lennuki Tüüp</th>
+        <th>Väljumisvärav</th>
+        <th>Sihtkoht (IATA Kood)</th>
+        <th>Saabumivärav</th>
+        <th>Broneeri lend</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="(flight, index) in flights" :key="flight.flight_iata">
+        <td>{{ index + 1 }}</td>
+        <td class="capitalize">{{ flight.airline.name || 'Ei ole määratud' }}</td>
+        <td class="capitalize">{{ flight.aircraft.modelText || 'Ei ole määratud' }}</td>
+        <td>{{ flight.departure.gate || 'Ei ole määratud' }}</td>
+        <td class="capitalize">{{ flight.arrival.iataCode || 'Ei ole määratud' }}</td>
+        <td>{{ flight.arrival.gate || 'Ei ole määratud' }}</td>
+
+        <td>
+          <router-link :to="`/book/${flight.flight_iata}`">
+            <button class="book-button">Broneeri</button>
+          </router-link>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
 
   </div>
+
 </template>
 
 <script lang="ts">
 import axios from 'axios';
 
-type Flight = {
-  id: string;
-  name: string;
-  price: string;
-  departureTime: string;
-  arrivalTime: string;
-};
+interface Flight {
+  flight_iata: string;
+  airline: {
+    name: string;
+  };
+  departure: {
+    gate?: string;
+  };
+  arrival: {
+    gate?: string;
+    iataCode?: string;
+  };
+  aircraft: {
+    modelText: string;
+  };
+}
+
 
 export default {
   name: "Home",
   data() {
     return {
-      departure: '',
-      destination: '',
+      airport: '',
       date: '',
-      adults: 1,
-      children: 0,
-      babies: 0,
-      flightClass: 'Economy',
       currency: 'EUR',
       flights: [] as Flight[],
       minDate: '',
+      apiKey: "bb6721d3b719126f5455f74fd060ff04",
+      type: 'departure',
     };
   },
   created() {
     const today = new Date();
+    today.setDate(today.getDate() + 7);  // Lisame 7 päeva sest varasemaid api ei näita
+
     const year = today.getFullYear();
     const month = (today.getMonth() + 1).toString().padStart(2, '0');
     const day = today.getDate().toString().padStart(2, '0');
     this.minDate = `${year}-${month}-${day}`;
   },
+
+
   methods: {
     async getFlights() {
       try {
-        const response = await axios.get(
-            `https://api.flightapi.io/onewaytrip/67c5e4715eeeaccfb6952fa9/${this.departure}/${this.destination}/${this.date}/${this.adults}/${this.children}/${this.babies}/${this.flightClass}/${this.currency}`
-        );
-        console.log(response.data);
-        this.flights = response.data;
+        // Loome päringu URL koos parameetritega
+        const url1 = `https://api.aviationstack.com/v1/flightsFuture`;
+        const params = {
+          access_key: this.apiKey,
+          iataCode: this.airport,
+          type: this.type,
+          date: this.date,
+        };
+        console.log(this.date);
+
+        console.log('Making API request to:', url1);
+        console.log('With parameters:', params);
+
+        // Päringu tegemine
+        const response = await axios.get(url1, {params});
+
+        // Andmete salvestamine
+        this.flights = response.data.data;
       } catch (error) {
         console.error('Error fetching flights:', error);
       }
@@ -118,6 +145,7 @@ export default {
   text-align: center;
   margin-top: 50px;
 }
+
 h1 {
   color: #2c3e50;
 }
@@ -137,12 +165,22 @@ input, select {
   padding: 8px;
 }
 
+input, select, button {
+  margin-bottom: 10px;
+  padding: 15px;
+  font-size: 1em;
+  width: 100%;
+  max-width: 280px;
+  box-sizing: border-box;
+}
+
 button {
-  padding: 10px;
+  padding: 20px;
   background-color: #4CAF50;
   color: white;
   border: none;
   cursor: pointer;
+  max-width: 280px;
 }
 
 button:hover {
@@ -156,5 +194,52 @@ ul {
 
 li {
   margin: 5px 0;
+}
+
+.flight-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.flight-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.flight-table th,
+.flight-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.flight-table thead {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.flight-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.flight-table tbody tr:hover {
+  background-color: #f1f1f1;
+  transition: 0.3s;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+.flight-table {
+  width: 80%;
+  max-width: 1000px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  text-align: center;
 }
 </style>

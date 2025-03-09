@@ -96,13 +96,13 @@ export default {
       currency: 'EUR',
       flights: [] as Flight[],
       minDate: '',
-      apiKey: "bb6721d3b719126f5455f74fd060ff04",
+      apiKey: "ead825382eb8a2ac99572b6d343e89e4",
       type: 'departure',
     };
   },
   created() {
     const today = new Date();
-    today.setDate(today.getDate() + 7);  // Lisame 7 päeva sest varasemaid api ei näita
+    today.setDate(today.getDate() + 8);  // Lisame 8 päeva sest varasemaid api ei näita
 
     const year = today.getFullYear();
     const month = (today.getMonth() + 1).toString().padStart(2, '0');

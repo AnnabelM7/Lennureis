@@ -3,6 +3,7 @@
     <nav>
       <ul>
         <li><a href="/">Avaleht</a></li>
+        <li><a href="/otsi">Otsi reisi</a></li>
         <li><a href="/contact">Kontakt</a></li>
       </ul>
     </nav>
@@ -62,3 +63,5 @@ ul li {
   text-align: center;
 }
 </style>
+<script setup lang="ts">
+</script>

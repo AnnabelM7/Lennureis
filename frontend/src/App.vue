@@ -1,6 +1,8 @@
 <script setup>
 import Header from "./components/Header.vue";
 import Footer from "./components/Footer.vue";
+import EmailSubscription from './components/EmailSubscription.vue';
+
 </script>
 
 <template>
@@ -8,6 +10,7 @@ import Footer from "./components/Footer.vue";
   <main>
     <router-view />
   </main>
+  <EmailSubscription />
   <Footer />
 </template>
 

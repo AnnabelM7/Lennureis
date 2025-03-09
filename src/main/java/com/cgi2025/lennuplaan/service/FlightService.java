@@ -15,18 +15,34 @@ import java.util.Optional;
 @Service
 public class FlightService {
 
+    private static final String API_URL = "https://api.aviationstack.com/v1/flights";
     private final FlightRepository flightRepository;
     private final RestTemplate restTemplate;
-
     @Value("${flight.api.key}")
     private String apiKey;
-
-    private static final String API_URL = "https://api.aviationstack.com/v1/flights";
 
     @Autowired
     public FlightService(FlightRepository flightRepository, RestTemplate restTemplate) {
         this.flightRepository = flightRepository;
         this.restTemplate = restTemplate;
+    }
+
+    // Andmebaasist päringu meetod
+    public List<Flight> getFlightsFromDb() {
+        return flightRepository.findAll();
+    }
+
+    // Tagasta lennud API
+    public List<Flight> getFlightsFromApi(String departure, String date) {
+        String url = UriComponentsBuilder.fromHttpUrl(API_URL)
+                .queryParam("access_key", apiKey)
+                .queryParam("dep_iata", departure)
+                .queryParam("flight_date", date)
+                .queryParam("limit", 10)
+                .toUriString();
+
+        ResponseEntity<Flight[]> response = restTemplate.getForEntity(url, Flight[].class);
+        return List.of(response.getBody());
     }
 
     public List<Flight> getAllFlights() {
@@ -43,19 +59,5 @@ public class FlightService {
 
     public void deleteFlight(Long id) {
         flightRepository.deleteById(id);
-    }
-
-    public List<Flight> getFlights(String departure, String date) {
-        String url = UriComponentsBuilder.fromHttpUrl(API_URL)
-                .queryParam("access_key", apiKey)
-                .queryParam("dep_iata", departure)
-                .queryParam("flight_date", date)
-                .queryParam("limit", 10)
-                .toUriString();
-
-        // Teeme päringu API
-        ResponseEntity<Flight[]> response = restTemplate.getForEntity(url, Flight[].class);
-
-        return List.of(response.getBody());
     }
 }

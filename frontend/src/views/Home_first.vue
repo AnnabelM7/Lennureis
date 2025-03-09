@@ -2,9 +2,8 @@
   <div class="home">
     <h1>Tere tulemast CloudReach Airlines lehele!</h1>
 
-    <h2>Meie parimad kombodiilid:</h2>
+    <h2>Meie parimad lennupakkumised:</h2>
 
-    <!-- Filtreerimise ja sorteerimise ala -->
     <div class="filters">
       <div class="filter-item">
         <label for="destination">Sihtkoht: </label>
@@ -32,7 +31,6 @@
     <p v-if="filteredAndSortedFlights.length === 0">Praegu pole ühtegi sobivat diili. Palun vaata hiljem uuesti või
       muuda filtreid!</p>
 
-    <!-- Lennulootuste tabel -->
     <table class="flight-table">
       <thead>
       <tr>
@@ -42,6 +40,7 @@
         <th>Hind (EUR)</th>
         <th>Kuupäev</th>
         <th>Lennuaeg</th>
+        <th>Lennufirma</th>
         <th>Broneeri lend</th>
       </tr>
       </thead>
@@ -49,38 +48,32 @@
       <tr v-for="(flight, index) in filteredAndSortedFlights" :key="index">
         <td>{{ index + 1 }}</td>
         <td>{{ flight.destination }}</td>
-        <td>{{ flight.origin }}</td>
+        <td>{{ flight.departure }}</td>
         <td>{{ flight.price }}€</td>
-        <td>{{ flight.date }}</td>
+        <td>{{ formatDate(flight.date) }}</td>
         <td>{{ flight.duration }}</td>
+        <td>{{ flight.airline }}</td>
         <td>
-          <router-link :to="`/book/${flight.flight_iata}`">
+          <router-link :to="`/book/${flight.id}`">
             <button class="book-button">Broneeri</button>
           </router-link>
         </td>
       </tr>
       </tbody>
     </table>
-
-
   </div>
 </template>
 
 <script>
 
 
+import axios from "axios";
+
 export default {
   name: "HomeFirst",
   data() {
     return {
-      flights: [
-        {destination: "Pariis", origin: "Tallinn", price: 120, date: "2025-04-10", duration: "2h 45m"},
-        {destination: "London", origin: "Tartu", price: 150, date: "2025-05-12", duration: "3h 10m"},
-        {destination: "Barcelona", origin: "Tallinn", price: 130, date: "2025-06-20", duration: "3h 5m"},
-        {destination: "Helsinki", origin: "Tartu", price: 80, date: "2025-07-05", duration: "1h 15m"},
-        {destination: "Berliin", origin: "Tallinn", price: 110, date: "2025-08-15", duration: "2h 30m"},
-        {destination: "Rooma", origin: "Tartu", price: 140, date: "2025-09-01", duration: "2h 50m"}
-      ],
+      flights: [],
       filters: {
         destination: "",
         price: null,
@@ -90,16 +83,24 @@ export default {
       sortAscending: true
     };
   },
+  mounted() {
+    this.getFlightsFromDb();
+  },
   computed: {
     filteredAndSortedFlights() {
-      let filteredFlights = this.flights.filter(flight => {
+      // Alguses on sama mis flights
+      let filteredFlights = [...this.flights];
+
+      // Filtreerimine
+      filteredFlights = filteredFlights.filter(flight => {
         return (
             (!this.filters.destination || flight.destination.toLowerCase().includes(this.filters.destination.toLowerCase())) &&
             (!this.filters.price || flight.price <= this.filters.price) &&
-            (!this.filters.date || flight.date === this.filters.date)
+            (!this.filters.date || flight.date.includes(this.filters.date))
         );
       });
 
+      // Sorteerimine
       return filteredFlights.sort((a, b) => {
         let comparison = 0;
         if (this.sortBy === "price") {
@@ -115,12 +116,27 @@ export default {
         return this.sortAscending ? comparison : -comparison;
       });
     }
+
   },
   methods: {
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    },
     durationToMinutes(duration) {
       const [hours, minutes] = duration.split("h").map(str => str.trim());
       return parseInt(hours) * 60 + (parseInt(minutes) || 0);
     },
+    async getFlightsFromDb() {
+      try {
+        const response = await axios.get("http://localhost:8080/flights/from-db");
+        console.log("API vastus: ", response.data);
+        this.flights = response.data;
+      } catch (error) {
+        console.error("Error fetching flights from DB:", error);
+      }
+    },
+
   },
 };
 </script>

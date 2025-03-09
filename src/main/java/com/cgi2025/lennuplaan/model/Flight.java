@@ -2,65 +2,94 @@ package com.cgi2025.lennuplaan.model;
 
 import jakarta.persistence.*;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "flights")
 public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
-    private String flightNumber;
-    private String origin;
     private String destination;
-    private String departureTime;
-    private String arrivalTime;
+    private String departure;
+    private double price;
+    private Date date;
+    private String duration;
+    private String airline;
 
 
-    public Long getId() {
+    public Flight(String destination, String departure, double price, Date date, String duration, String airline) {
+        this.destination = destination;
+        this.departure = departure;
+        this.price = price;
+        this.date = date;
+        this.duration = duration;
+        this.airline = airline;
+    }
+
+    public Flight() {
+
+    }
+
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
-    }
-
-    public String getFlightNumber() {
-        return flightNumber;
-    }
-
-    public void setFlightNumber(String flightNumber) {
-        this.flightNumber = flightNumber;
-    }
-
-    public String getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
     }
 
     public String getDestination() {
         return destination;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public void setDestination(String departureAirport) {
+        this.destination = departureAirport;
     }
 
-    public String getDepartureTime() {
-        return departureTime;
+    public String getDeparture() {
+        return departure;
     }
 
-    public void setDepartureTime(String departureTime) {
-        this.departureTime = departureTime;
+    public void setDeparture(String arrivalAirport) {
+        this.departure = arrivalAirport;
     }
 
-    public String getArrivalTime() {
-        return arrivalTime;
+    public double getPrice() {
+        return price;
     }
 
-    public void setArrivalTime(String arrivalTime) {
-        this.arrivalTime = arrivalTime;
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date departureDate) {
+        this.date = departureDate;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String flightTime) {
+        this.duration = flightTime;
+    }
+
+    public String getAirline() {
+        return airline;
+    }
+
+    public void setAirline(String airline) {
+        this.airline = airline;
+    }
+
+    @Override
+    public String toString() {
+        return "Flight{" + "id=" + id + ", departureAirport='" + destination + '\'' + ", arrivalAirport='" + departure + '\'' + ", price=" + price + ", departureDate=" + date + ", flightTime='" + duration + '\'' + ", airline='" + airline + '\'' + '}';
     }
 }

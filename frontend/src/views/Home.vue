@@ -5,9 +5,9 @@
     <p>Otsi oma järgmine lennureis mugavalt:</p>
 
     <!-- Lennuotsing -->
-    <form @submit.prevent="getFlights" class="flight-form">
+    <form class="flight-form" @submit.prevent="getFlights">
       <label for="airport">Lähtekoht (lennujaam):</label>
-      <select v-model="airport" id="airport">
+      <select id="airport" v-model="airport">
         <option value="TLL">Tallinn (TLL)</option>
         <option value="RIX">Riia (RIX)</option>
         <option value="HEL">Helsingi (HEL)</option>
@@ -18,13 +18,13 @@
       </select>
 
       <label for="type">Lennu tüüp:</label>
-      <select v-model="type" id="type">
+      <select id="type" v-model="type">
         <option value="departure">Väljumine</option>
         <option value="arrival">Saabumine</option>
       </select>
 
       <label for="date">Kuupäev:</label>
-      <input type="date" id="date" v-model="date" :min="minDate" required/>
+      <input id="date" v-model="date" :min="minDate" required type="date"/>
 
       <button type="submit">Otsi lende</button>
     </form>
@@ -127,10 +127,8 @@ export default {
         console.log('Making API request to:', url1);
         console.log('With parameters:', params);
 
-        // Päringu tegemine
         const response = await axios.get(url1, {params});
 
-        // Andmete salvestamine
         this.flights = response.data.data;
       } catch (error) {
         console.error('Error fetching flights:', error);
@@ -235,6 +233,7 @@ li {
 .capitalize {
   text-transform: capitalize;
 }
+
 .flight-table {
   width: 80%;
   max-width: 1000px;

@@ -27,7 +27,10 @@ public class FlightService {
         this.restTemplate = restTemplate;
     }
 
-    // Andmebaasist päringu meetod
+    public Flight getFlightWithSeats(int flightId) {
+        return flightRepository.findById(Long.valueOf(flightId)).orElse(null);
+    }
+
     public List<Flight> getFlightsFromDb() {
         return flightRepository.findAll();
     }

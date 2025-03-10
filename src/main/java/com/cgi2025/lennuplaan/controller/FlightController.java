@@ -1,8 +1,11 @@
 package com.cgi2025.lennuplaan.controller;
 
 import com.cgi2025.lennuplaan.model.Flight;
+import com.cgi2025.lennuplaan.model.Seat;
 import com.cgi2025.lennuplaan.service.FlightService;
+import com.cgi2025.lennuplaan.service.SeatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,8 +17,23 @@ public class FlightController {
     private final FlightService flightService;
 
     @Autowired
+    private SeatService seatService;
+
+    @Autowired
     public FlightController(FlightService flightService) {
         this.flightService = flightService;
+    }
+
+    @GetMapping("/{flightId}/seats")
+    public ResponseEntity<List<Seat>> getSeats(@PathVariable int flightId) {
+        seatService.setSeatsAsSelected(flightId);
+        List<Seat> seats = seatService.getSeats(flightId);
+        return ResponseEntity.ok(seats);
+    }
+
+    @GetMapping("/flights/{id}")
+    public Flight getFlightWithSeats(@PathVariable int id) {
+        return flightService.getFlightWithSeats(id);
     }
 
     // Lennud andmebaasist

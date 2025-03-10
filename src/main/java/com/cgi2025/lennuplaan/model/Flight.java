@@ -3,6 +3,8 @@ package com.cgi2025.lennuplaan.model;
 import jakarta.persistence.*;
 
 import java.util.Date;
+import java.util.List;
+
 
 @Entity
 @Table(name = "flights")
@@ -17,15 +19,18 @@ public class Flight {
     private Date date;
     private String duration;
     private String airline;
+    @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Seat> seats;
 
-
-    public Flight(String destination, String departure, double price, Date date, String duration, String airline) {
+    public Flight(int id, String destination, String departure, double price, Date date, String duration, String airline, List<Seat> seats) {
+        this.id = id;
         this.destination = destination;
         this.departure = departure;
         this.price = price;
         this.date = date;
         this.duration = duration;
         this.airline = airline;
+        this.seats = seats;
     }
 
     public Flight() {
@@ -88,8 +93,25 @@ public class Flight {
         this.airline = airline;
     }
 
+    public List<Seat> getSeats() {
+        return seats;
+    }
+
+    public void setSeats(List<Seat> seats) {
+        this.seats = seats;
+    }
+
     @Override
     public String toString() {
-        return "Flight{" + "id=" + id + ", departureAirport='" + destination + '\'' + ", arrivalAirport='" + departure + '\'' + ", price=" + price + ", departureDate=" + date + ", flightTime='" + duration + '\'' + ", airline='" + airline + '\'' + '}';
+        return "Flight{" +
+                "id=" + id +
+                ", destination='" + destination + '\'' +
+                ", departure='" + departure + '\'' +
+                ", price=" + price +
+                ", date=" + date +
+                ", duration='" + duration + '\'' +
+                ", airline='" + airline + '\'' +
+                ", seats=" + seats +
+                '}';
     }
 }

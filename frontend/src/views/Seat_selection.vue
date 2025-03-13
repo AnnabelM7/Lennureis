@@ -7,10 +7,10 @@
       <p><strong>Lapsed:</strong> {{ children }}</p>
       <p><strong>Valitud eelistused:</strong></p>
       <ul v-if="hasPreferences">
-        <li v-if="preferences.windowSeat">Iste on akna all</li>
+        <li v-if="preferences.windowSeat">Istmed on akna all</li>
         <li v-if="preferences.middleSeat">Istmed on keskel</li>
         <li v-if="preferences.aisleSeat">Istmed on ääres</li>
-        <li v-if="preferences.extraLegroom">Ekstra jalaruum kõigil istmetel</li>
+        <li v-if="preferences.extraLegroom">Ekstra jalaruum istmetel</li>
       </ul>
       <p v-else>Ühtegi eelistust ei ole valitud.</p>
     </div>
@@ -19,7 +19,7 @@
 
     <ul class="seats-description">
       <li>Helehalliga on märgitud juba broneeritud istmed.</li>
-      <li v-if="hasPreferences">Kollasega on märgitud eelistatud istmed.</li>
+      <p v-if="hasPreferences">Kollasega on märgitud eelistatud istmed.</p>
     </ul>
 
 
@@ -126,6 +126,9 @@ export default {
         return true;
       } else if (this.preferences.aisleSeat && seat.seatType === 'Ääres') {
         console.log('Soovitus: Ääres');
+        return true;
+      } else if (this.preferences.extraLegroom && seat.extraLegRoom) {
+        console.log('Soovitus: Ekstra jalaruumiga');
         return true;
       }
       console.log('Ei');

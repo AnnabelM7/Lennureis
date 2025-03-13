@@ -26,6 +26,9 @@
       <label for="date">Kuupäev:</label>
       <input id="date" v-model="date" :min="minDate" required type="date"/>
 
+      <label for="numberOfFlights">Mitu lendu soovite näha:</label>
+      <input id="numberOfFlights" v-model="numberOfFlights" max="100" min="1" required type="number"/>
+
       <button type="submit">Otsi lende</button>
     </form>
 
@@ -53,9 +56,9 @@
         <td>{{ flight.arrival.gate || 'Ei ole määratud' }}</td>
 
         <td>
-          <router-link :to="`/book/${flight.flight_iata}`">
-            <button class="book-button">Broneeri</button>
-          </router-link>
+          <button class="book-button" @click="showBookingAlert()">
+            Broneeri
+          </button>
         </td>
 
       </tr>
@@ -91,6 +94,7 @@ export default {
   name: "Home",
   data() {
     return {
+      numberOfFlights: 10,
       airport: '',
       date: '',
       currency: 'EUR',
@@ -129,11 +133,15 @@ export default {
 
         const response = await axios.get(url1, {params});
 
-        this.flights = response.data.data;
+        this.flights = response.data.data.slice(0, this.numberOfFlights);
       } catch (error) {
         console.error('Error fetching flights:', error);
       }
-    }
+    },
+    showBookingAlert() {
+      const message = `Kui soovite seda lendu broneerida, siis võtke ühendust CloudReach Airlines'iga e-posti aadressil: info@cloudreach.com `;
+      alert(message);
+    },
   }
 };
 </script>
@@ -204,10 +212,12 @@ li {
 }
 
 .flight-table {
-  width: 100%;
   border-collapse: collapse;
   text-align: center;
   font-family: Arial, sans-serif;
+  width: 80%;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .flight-table th,
@@ -234,11 +244,4 @@ li {
   text-transform: capitalize;
 }
 
-.flight-table {
-  width: 80%;
-  max-width: 1000px;
-  margin: 0 auto;
-  border-collapse: collapse;
-  text-align: center;
-}
 </style>

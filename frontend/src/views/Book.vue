@@ -12,38 +12,45 @@
       <p><strong>Lennufirma:</strong> {{ flight.airline || 'Ei ole määratud' }}</p>
 
       <h2>Reisijad:</h2>
-      <div>
-        <label for="adults">Täiskasvanud:</label>
-        <input id="adults" v-model="adults" min="0" type="number"/>
-      </div>
+      <div class="passenger-info">
+        <div>
+          <label for="adults">Täiskasvanud: </label>
+          <input id="adults" v-model="adults" min="1" type="number"/>
+        </div>
 
-      <div>
-        <label for="children">Lapsed:</label>
-        <input id="children" v-model="children" min="0" type="number"/>
-      </div>
-
-      <div v-if="seats.length > 0">
-        <div v-for="(rowSeats, index) in groupedSeats" :key="index" class="seat-row">
-          <div v-for="seat in rowSeats" :key="seat.seatId" class="seat">
-            <button
-                :class="{
-      'seat-available': seat.status === 'Saadaval',
-      'seat-booked': seat.status === 'Broneeritud'
-    }"
-                :disabled="seat.status !== 'Saadaval'"
-                class="seat-button"
-                @click="selectSeat(seat)"
-            >
-              {{ seat.seatNumber }}
-            </button>
-
-          </div>
+        <div>
+          <label for="children">Lapsed: </label>
+          <input id="children" v-model="children" min="0" type="number"/>
         </div>
       </div>
 
-      <p v-else>Istekohti ei ole saadaval.</p>
+      <h3>Lisasoovid:</h3>
+      <div class="checkboxes">
+        <div>
+          <input id="window" v-model="preferences.windowSeat" type="checkbox"/>
+          <label for="window">Eelistan võimalusel, et istmed on akna all</label>
+        </div>
 
-      <button class="book-button" @click="bookFlight">Broneeri</button>
+        <div>
+          <input id="middle" v-model="preferences.middleSeat" type="checkbox"/>
+          <label for="middle">Eelistan võimalusel, et istmed on keskel</label>
+        </div>
+
+        <div>
+          <input id="aisle" v-model="preferences.aisleSeat" type="checkbox"/>
+          <label for="aisle">Eelistan võimalusel, et istmed on ääres</label>
+        </div>
+
+        <div>
+          <input id="extraLegroom" v-model="preferences.extraLegroom" type="checkbox"/>
+          <label for="extraLegroom">Eelistan võimalusel ekstra jalaruum istmetel</label>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="back-button" @click="goBack">Tagasi</button>
+        <button class="book-button" @click="goToNextStep">Edasi</button>
+      </div>
     </div>
 
     <p v-else>Laadimine...</p>
@@ -59,15 +66,19 @@ export default {
     return {
       flight: null,
       seats: [],
-      adults: 0,
+      adults: 1,
       children: 0,
-      selectedSeats: [],
+      preferences: {
+        windowSeat: false,
+        extraLegroom: false,
+        aisleSeat: false,
+        middleSeat: false,
+      },
     };
   },
   mounted() {
     const flightId = this.$route.params.id;
     this.getFlightDetails(flightId);
-    this.getSeatsByFlight(flightId);
   },
   methods: {
     async getFlightDetails(flightId) {
@@ -79,47 +90,27 @@ export default {
       }
     },
 
-    async getSeatsByFlight(flightId) {
-      try {
-        const response = await axios.get(`http://localhost:8080/seats/flight/${flightId}`);
-        this.seats = response.data;
-      } catch (error) {
-        console.error('Istekohtade hankimise viga', error);
-      }
-    },
-
-    selectSeat(seat) {
-      if (seat.status === 'available') {
-        const index = this.selectedSeats.indexOf(seat.seatId);
-        if (index === -1) {
-          this.selectedSeats.push(seat.seatId);
-        } else {
-          this.selectedSeats.splice(index, 1);
-        }
-      }
-    },
-
     formatDate(dateString) {
       const date = new Date(dateString);
       return date.toLocaleDateString();
     },
 
-    bookFlight() {
-      alert(`Olete broneerinud lennu sihtkohta: ${this.flight.destination} (${this.flight.departure}) koos valitud istekohtadega: ${this.selectedSeats.join(', ')}!`);
-      // TODO: Siin saab hiljem teha päringu broneeringu salvestamiseks andmebaasi vms
+    goToNextStep() {
+      this.$router.push({
+        name: 'seat-selection',
+        query: {
+          flightId: this.flight.id,
+          adults: this.adults,
+          children: this.children,
+          preferences: JSON.stringify(this.preferences),
+        },
+      });
+    },
+
+    goBack() {
+      this.$router.push('/');
     }
   },
-  computed: {
-    groupedSeats() {
-      const rows = [];
-      for (let i = 0; i < this.seats.length; i += 6) {
-        rows.push(this.seats.slice(i, i + 6));
-      }
-      return rows;
-    }
-  }
-
-
 };
 </script>
 
@@ -129,13 +120,10 @@ export default {
   margin-top: 30px;
 }
 
-h1 {
+h1, h2, h3 {
   color: #2c3e50;
 }
 
-h2 {
-  color: #34495e;
-}
 
 p {
   font-size: 1.2em;
@@ -146,7 +134,7 @@ strong {
   font-weight: bold;
 }
 
-.book-button {
+.book-button, .back-button {
   padding: 12px 20px;
   background-color: #034d14;
   color: white;
@@ -157,42 +145,59 @@ strong {
   width: 200px;
 }
 
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
 .book-button:hover {
   background-color: #45a049;
 }
 
-.seat-row {
-  display: flex;
-  justify-content: center;
+.back-button {
+  background-color: #aaa;
+}
+
+.back-button:hover {
+  background-color: #888;
+}
+
+.passenger-info {
+  margin-bottom: 20px;
+}
+
+.passenger-info div {
   margin-bottom: 10px;
 }
 
-.seat {
-  margin: 0 5px;
+input[type="number"] {
+  padding: 15px;
+  font-size: 1em;
+  width: 100%;
+  max-width: 280px;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
 }
 
-.seat-button {
-  padding: 10px;
-  background-color: #34a853;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 1.1em;
-  width: 60px;
-  height: 60px;
+input[type="number"]:focus {
+  outline: none;
+  border-color: #34a853;
+}
+
+.checkboxes {
+  margin-top: 20px;
   text-align: center;
 }
 
-.seat-button:disabled {
-  background-color: #ccc;
+.checkboxes div {
+  margin-bottom: 10px;
 }
 
-.seat-available {
-  background-color: #34a853; /* Roheline (saadaval) */
+input[type="checkbox"] {
+  margin-right: 10px;
 }
-
-.seat-booked {
-  background-color: #ccc; /* Hall (broneeritud) */
-}
-
 </style>

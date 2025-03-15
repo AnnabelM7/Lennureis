@@ -96,3 +96,30 @@ The contact page provides users with the necessary contact details for CloudReac
 Additionally, the page features an embedded map showing the exact location of our office, making it easy for users to find us.
 
 Users can view our contact information and easily navigate to our physical location using the interactive map. The page serves as a direct communication channel for users seeking assistance or further details about our services.
+
+## Project Structure
+The CloudReach Airlines web application is divided into two main parts: the front-end and the back-end.
+### 1. Frontend
+The frontend is a Vue.js application.
+1. **Components:**
+Contains the components for the application.
+* Footer is responsible for displaying the footer of the application.
+* Header is responsible for displaying the header of the application.
+* EmailSubcription manages the newsletter subscription, allowing users to enter and validate their email, display success or error messages, and subscribe for updates on offers and flights.
+
+2. **Views:**
+Contains the pages for the application.
+* Book is responsible for displaying the booking page with flight details and passenger information.
+* Contact displays the contact information and office location.
+* FindFlights allows users to search for flights based on criteria.
+* Home displays the main page with flight offers and filters.
+* SeatSelection is responsible for displaying the seat selection page for the chosen flight.
+
+3. **Router:**
+Defines the application's routes, maps each route to a specific component.
+4. **App.vue:**
+The layout is set up by importing and rendering the Header, EmailSubscription, and Footer components, with the main content dynamically displayed through router-view.
+
+### 2. Backend
+
+

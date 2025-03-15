@@ -19,7 +19,7 @@
 
     <ul class="seats-description">
       <li>Helehalliga on märgitud juba broneeritud istmed.</li>
-      <p v-if="hasPreferences">Kollasega on märgitud eelistatud istmed.</p>
+      <li v-if="hasPreferences">Kollasega on märgitud eelistatud istmed.</li>
     </ul>
 
 

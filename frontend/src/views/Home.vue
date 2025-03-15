@@ -100,7 +100,8 @@ export default {
       currency: 'EUR',
       flights: [] as Flight[],
       minDate: '',
-      apiKey: "ead825382eb8a2ac99572b6d343e89e4",
+      apiKey: "c95b18b6d7e5868d81f04795eaa68688",
+      //: import.meta.env.FLIGHT_API_KEY, Ei saa variablena seda kätte
       type: 'departure',
     };
   },
@@ -130,7 +131,6 @@ export default {
 
         console.log('Making API request to:', url1);
         console.log('With parameters:', params);
-
         const response = await axios.get(url1, {params});
 
         this.flights = response.data.data.slice(0, this.numberOfFlights);

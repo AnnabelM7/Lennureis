@@ -121,5 +121,63 @@ Defines the application's routes, maps each route to a specific component.
 The layout is set up by importing and rendering the Header, EmailSubscription, and Footer components, with the main content dynamically displayed through router-view.
 
 ### 2. Backend
+The backend is a Spring Boot application written in Java.
+
+1. **Controllers:**
+   * ContactController: Responsible for handling requests to the /contact endpoint and rendering the contact.html page, displaying the contact information to the user.
+   * Handles the flight-related requests such as fetching available flights, saving and deleting flight data, retrieving seats for a specific flight, and integrating with both the database and external APIs to manage flight information.
+   * SeatController: Manages seat-related requests, including retrieving seats for a specific flight, adding new seats, updating the status of a seat, and fetching seat details by ID.
+2. **Models:**
+   * Flight: Represents a flight entity with attributes. It is mapped to the flights table in the database and contains methods for getting and setting flight details.
+   * Seat: Represents a seat entity with attributes. It is linked to the Flight entity through a many-to-one relationship, and is mapped to the seats table in the database. This model contains methods for getting and setting seat details.
+    
+3. **Repositories:** Contains the custom exceptions for the application.
+
+4. **Services:** Contains the services for the application.
+   * FlightService: Provides business logic for handling flight-related operations.
+   * SeatService: Handles the business logic for seat-related operations.
+     
+**DataLoader:** This class is responsible for loading initial data into the database when the application starts. It deletes existing entries and populates the Flight and Seat tables with sample data (flights and seats with random availability and types).
+
+**FlightConfig:** Configures a RestTemplate for making API requests.
+
+**WebConfig:** Sets up CORS to allow cross-origin requests.
 
 
+
+## Running the application locally
+1. CLone or download the repository.
+2. Open the project in your favorite IDE.
+3. Set the environment variables.
+   **Database credentials, apikey.
+5. Modify the application.properties file in the resources folder to match your database configuration.
+  ** Update the database URL, username, and password as needed.
+6. Run the application.
+7. Run the frontend.
+````
+npm install
+npm run dev
+````
+
+## Data:
+The data for the application is fetched from the AviationStack API (https://aviationstack.com/). 
+
+The DataLoader class populates the database with initial data on flights and seats.
+
+Flight Data: A set of predefined flights with details such as departure and arrival cities, seat capacity, flight duration, airline, and departure times. 
+Seat Data: Randomized seat information is created for each flight. The seat information includes:
+
+Seat number (e.g., A1, B1, etc.)
+Seat status, which is randomly assigned as either "Available" or "Booked" based on a 20% chance of being booked.
+Extra legroom, randomly assigned with a 10% chance.
+Seat type (e.g., "Window", "Middle", "Aisle"), which depends on the seat column (A to F).
+## Notes:
+The project was of a manageable difficulty level for me. However, I wish I had started earlier (due to time constraints), which would have allowed me to add more features and refine the logic further (e.g., using variables for API keys, adding first-class logic, retrieving all data from APIs, implementing user logic, etc.).
+
+The entire project took me about 30-40 hours to complete.
+
+The most difficult part of the project for me was at the beginning, when I couldn't see how everything should fit together. Because of this, I often came up with new ideas, but then things wouldn’t work as expected. I also had trouble getting data from the API at times, which led to many errors. This was frustrating and slowed me down. Although I understood the main goal, some tasks, like working with the API and fixing errors, turned out to be harder than I thought.
+
+ChatGPT helped generate sample data (such as for the database and some website text). For example, in the EmailSubscriptipton file, I used AI-generated code for the subscribeNewsletter() method, but I modified and extended it.
+
+Additionally, the entire README was reworded by ChatGPT. While the original content was written by me, the AI helped to enhance it.

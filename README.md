@@ -148,10 +148,8 @@ The backend is a Spring Boot application written in Java.
 ## Running the application locally
 1. CLone or download the repository.
 2. Open the project in your favorite IDE.
-3. Set the environment variables.
-   3.1 Database credentials, apikey.
-4. Modify the application.properties file in the resources folder to match your database configuration.
-   4.1 Update the database URL, username, and password as needed.
+3. Set the environment variables. (Database credentials, apikey.)
+4. Modify the application.properties file in the resources folder to match your database configuration. (Update the database URL, username, and password as needed.)
 5. Run the application.
 6. Run the frontend.
 ````
@@ -172,9 +170,9 @@ Seat status, which is randomly assigned as either "Available" or "Booked" based 
 Extra legroom, randomly assigned with a 10% chance.
 Seat type (e.g., "Window", "Middle", "Aisle"), which depends on the seat column (A to F).
 ## Notes:
-The project was of a manageable difficulty level for me. However, I wish I had started earlier (due to time constraints), which would have allowed me to add more features and refine the logic further (e.g., using variables for API keys, adding first-class logic, retrieving all data from APIs, implementing user logic, etc.).
+The project was of a manageable difficulty level for me. However, I wish I had started earlier, which would have allowed me to add more features and refine the logic further (e.g., using variables for API keys, adding first-class logic, retrieving all data from APIs, implementing user logic, etc.).
 
-The entire project took me about 30-40 hours to complete.
+The entire project took me about around 30 hours to complete.
 
 The most difficult part of the project for me was at the beginning, when I couldn't see how everything should fit together. Because of this, I often came up with new ideas, but then things wouldn’t work as expected. I also had trouble getting data from the API at times, which led to many errors. This was frustrating and slowed me down. Although I understood the main goal, some tasks, like working with the API and fixing errors, turned out to be harder than I thought.
 

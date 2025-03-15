@@ -1,9 +1,9 @@
 import {createRouter, createWebHistory} from "vue-router";
-import Home from "../views/Home.vue";
+import Home from "../views/FindFlights.vue";
 import Contact from "../views/Contact.vue";
-import HomeFirst from '../views/Home_first.vue';
+import HomeFirst from '../views/Home.vue';
 import Book from '../views/Book.vue';
-import Seat_selection from "../views/Seat_selection.vue";
+import Seat_selection from "../views/SeatSelection.vue";
 
 
 const routes = [

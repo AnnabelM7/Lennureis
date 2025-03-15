@@ -2,147 +2,142 @@
   <div class="home">
     <h1>Tere tulemast CloudReach Airlines lehele!</h1>
 
-    <p>Otsi oma järgmine lennureis mugavalt:</p>
+    <h2>Meie parimad lennupakkumised:</h2>
 
-    <!-- Lennuotsing -->
-    <form class="flight-form" @submit.prevent="getFlights">
-      <label for="airport">Lähtekoht (lennujaam):</label>
-      <select id="airport" v-model="airport">
-        <option value="TLL">Tallinn (TLL)</option>
-        <option value="RIX">Riia (RIX)</option>
-        <option value="HEL">Helsingi (HEL)</option>
-        <option value="FRA">Frankfurt (FRA)</option>
-        <option value="AMS">Amsterdam (AMS)</option>
-        <option value="BER">Berliin (BER)</option>
-        <option value="CPH">Kopenhaagen (CPH)</option>
-      </select>
+    <div class="filters">
+      <div class="filter-item">
+        <label for="destination">Sihtkoht: </label>
+        <input v-model="filters.destination" placeholder="Sisesta sihtkoht" type="text"/>
+      </div>
+      <div class="filter-item">
+        <label for="price">Hind (max): </label>
+        <input v-model="filters.price" placeholder="Sisesta hind" type="number"/>
+      </div>
+      <div class="filter-item">
+        <label for="sortBy">Sorteeri järgi: </label>
+        <select v-model="sortBy">
+          <option value="price">Hind</option>
+          <option value="date">Kuupäev</option>
+          <option value="duration">Lennuaeg</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <button @click="sortAscending = !sortAscending">
+          {{ sortAscending ? 'Kasvavalt' : 'Kahanevalt' }}
+        </button>
+      </div>
+    </div>
 
-      <label for="type">Lennu tüüp:</label>
-      <select id="type" v-model="type">
-        <option value="departure">Väljumine</option>
-        <option value="arrival">Saabumine</option>
-      </select>
+    <p v-if="filteredAndSortedFlights.length === 0">Praegu pole ühtegi sobivat diili. Palun vaata hiljem uuesti või
+      muuda filtreid!</p>
 
-      <label for="date">Kuupäev:</label>
-      <input id="date" v-model="date" :min="minDate" required type="date"/>
-
-      <label for="numberOfFlights">Mitu lendu soovite näha:</label>
-      <input id="numberOfFlights" v-model="numberOfFlights" max="100" min="1" required type="number"/>
-
-      <button type="submit">Otsi lende</button>
-    </form>
-
-    <!-- Lendude kuvamine -->
-    <h2 v-if="flights.length">Leitud lennud:</h2>
-    <table v-if="flights.length" class="flight-table">
+    <table class="flight-table">
       <thead>
       <tr>
         <th>#</th>
+        <th>Sihtkoht</th>
+        <th>Alguskoht</th>
+        <th>Hind (EUR)</th>
+        <th>Kuupäev</th>
+        <th>Lennuaeg</th>
         <th>Lennufirma</th>
-        <th>Lennuki Tüüp</th>
-        <th>Väljumisvärav</th>
-        <th>Sihtkoht (IATA Kood)</th>
-        <th>Saabumivärav</th>
         <th>Broneeri lend</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(flight, index) in flights" :key="flight.flight_iata">
+      <tr v-for="(flight, index) in filteredAndSortedFlights" :key="index">
         <td>{{ index + 1 }}</td>
-        <td class="capitalize">{{ flight.airline.name || 'Ei ole määratud' }}</td>
-        <td class="capitalize">{{ flight.aircraft.modelText || 'Ei ole määratud' }}</td>
-        <td>{{ flight.departure.gate || 'Ei ole määratud' }}</td>
-        <td class="capitalize">{{ flight.arrival.iataCode || 'Ei ole määratud' }}</td>
-        <td>{{ flight.arrival.gate || 'Ei ole määratud' }}</td>
-
+        <td>{{ flight.destination }}</td>
+        <td>{{ flight.departure }}</td>
+        <td>{{ flight.price }}€</td>
+        <td>{{ formatDate(flight.date) }}</td>
+        <td>{{ flight.duration }}</td>
+        <td>{{ flight.airline }}</td>
         <td>
-          <button class="book-button" @click="showBookingAlert()">
-            Broneeri
-          </button>
+          <router-link :to="`/book/${flight.id}`">
+            <button class="book-button">Broneeri</button>
+          </router-link>
         </td>
-
       </tr>
       </tbody>
     </table>
-
   </div>
-
 </template>
 
-<script lang="ts">
-import axios from 'axios';
+<script>
 
-interface Flight {
-  flight_iata: string;
-  airline: {
-    name: string;
-  };
-  departure: {
-    gate?: string;
-  };
-  arrival: {
-    gate?: string;
-    iataCode?: string;
-  };
-  aircraft: {
-    modelText: string;
-  };
-}
 
+import axios from "axios";
 
 export default {
-  name: "Home",
+  name: "HomeFirst",
   data() {
     return {
-      numberOfFlights: 10,
-      airport: '',
-      date: '',
-      currency: 'EUR',
-      flights: [] as Flight[],
-      minDate: '',
-      apiKey: "c95b18b6d7e5868d81f04795eaa68688",
-      //: import.meta.env.FLIGHT_API_KEY, Ei saa variablena seda kätte
-      type: 'departure',
+      flights: [],
+      filters: {
+        destination: "",
+        price: null,
+        date: ""
+      },
+      sortBy: "price",
+      sortAscending: true
     };
   },
-  created() {
-    const today = new Date();
-    today.setDate(today.getDate() + 8);  // Lisame 8 päeva sest varasemaid api ei näita
-
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
-    this.minDate = `${year}-${month}-${day}`;
+  mounted() {
+    this.getFlightsFromDb();
   },
+  computed: {
+    filteredAndSortedFlights() {
+      // Alguses on sama mis flights
+      let filteredFlights = [...this.flights];
 
+      // Filtreerimine
+      filteredFlights = filteredFlights.filter(flight => {
+        return (
+            (!this.filters.destination || flight.destination.toLowerCase().includes(this.filters.destination.toLowerCase())) &&
+            (!this.filters.price || flight.price <= this.filters.price) &&
+            (!this.filters.date || flight.date.includes(this.filters.date))
+        );
+      });
 
+      // Sorteerimine
+      return filteredFlights.sort((a, b) => {
+        let comparison = 0;
+        if (this.sortBy === "price") {
+          comparison = a.price - b.price;
+        } else if (this.sortBy === "date") {
+          comparison = new Date(a.date) - new Date(b.date);
+        } else if (this.sortBy === "duration") {
+          const aDuration = this.durationToMinutes(a.duration);
+          const bDuration = this.durationToMinutes(b.duration);
+          comparison = aDuration - bDuration;
+        }
+
+        return this.sortAscending ? comparison : -comparison;
+      });
+    }
+
+  },
   methods: {
-    async getFlights() {
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    },
+    durationToMinutes(duration) {
+      const [hours, minutes] = duration.split("h").map(str => str.trim());
+      return parseInt(hours) * 60 + (parseInt(minutes) || 0);
+    },
+    async getFlightsFromDb() {
       try {
-        // Loome päringu URL koos parameetritega
-        const url1 = `https://api.aviationstack.com/v1/flightsFuture`;
-        const params = {
-          access_key: this.apiKey,
-          iataCode: this.airport,
-          type: this.type,
-          date: this.date,
-        };
-        console.log(this.date);
-
-        console.log('Making API request to:', url1);
-        console.log('With parameters:', params);
-        const response = await axios.get(url1, {params});
-
-        this.flights = response.data.data.slice(0, this.numberOfFlights);
+        const response = await axios.get("http://localhost:8080/flights/from-db");
+        console.log("API vastus: ", response.data);
+        this.flights = response.data;
       } catch (error) {
-        console.error('Error fetching flights:', error);
+        console.error("Error fetching flights from DB:", error);
       }
     },
-    showBookingAlert() {
-      const message = `Kui soovite seda lendu broneerida, siis võtke ühendust CloudReach Airlines'iga e-posti aadressil: info@cloudreach.com `;
-      alert(message);
-    },
-  }
+
+  },
 };
 </script>
 
@@ -152,76 +147,54 @@ export default {
   margin-top: 50px;
 }
 
-h1 {
+h1, h2 {
   color: #2c3e50;
 }
 
-form {
+.filters {
   display: flex;
-  flex-direction: column;
-  margin-top: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 20px 0;
 }
 
-label {
-  margin-top: 10px;
+.filter-item {
+  margin: 10px;
+  text-align: center;
 }
 
 input, select {
   margin-bottom: 10px;
   padding: 8px;
-}
-
-input, select, button {
-  margin-bottom: 10px;
-  padding: 15px;
   font-size: 1em;
-  width: 100%;
-  max-width: 280px;
+  width: 180px;
   box-sizing: border-box;
 }
 
 button {
-  padding: 20px;
-  background-color: #4CAF50;
+  padding: 10px;
+  background-color: #034d14;
   color: white;
   border: none;
   cursor: pointer;
-  max-width: 280px;
+  font-size: 1em;
+  width: 180px;
+  box-sizing: border-box;
 }
 
 button:hover {
   background-color: #45a049;
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  margin: 5px 0;
-}
-
-.flight-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
 .flight-table {
+  width: 80%;
+  margin: 20px auto;
   border-collapse: collapse;
   text-align: center;
   font-family: Arial, sans-serif;
-  width: 80%;
-  max-width: 1000px;
-  margin: 0 auto;
 }
 
-.flight-table th,
-.flight-table td {
+.flight-table th, .flight-table td {
   padding: 10px;
   border: 1px solid #ddd;
 }
@@ -238,10 +211,6 @@ li {
 .flight-table tbody tr:hover {
   background-color: #f1f1f1;
   transition: 0.3s;
-}
-
-.capitalize {
-  text-transform: capitalize;
 }
 
 </style>

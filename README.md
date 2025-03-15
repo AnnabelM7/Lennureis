@@ -149,11 +149,11 @@ The backend is a Spring Boot application written in Java.
 1. CLone or download the repository.
 2. Open the project in your favorite IDE.
 3. Set the environment variables.
-   **Database credentials, apikey.
-5. Modify the application.properties file in the resources folder to match your database configuration.
-  ** Update the database URL, username, and password as needed.
-6. Run the application.
-7. Run the frontend.
+   3.1 Database credentials, apikey.
+4. Modify the application.properties file in the resources folder to match your database configuration.
+   4.1 Update the database URL, username, and password as needed.
+5. Run the application.
+6. Run the frontend.
 ````
 npm install
 npm run dev
